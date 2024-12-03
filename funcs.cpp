@@ -435,9 +435,138 @@ void menu_item_2() {
 
 void menu_item_3() {
     clearscreen();
-  std::cout << "\n>> Menu 3\n";
-  std::cout << "\nSome code here does something useful\n";
-  // you can call a function from here that handles menu 3
+    int choice;
+    do {
+        std::cout << "\n--- Filter Calculator ---\n";
+        std::cout << "Are you building a High pass filter or a Low pass filter?\n";
+        std::cout << "1. Low Pass Filter\n";
+        std::cout << "2. High Pass Filter\n";
+        std::cout << "3. Exit to Main Menu\n";
+        std::cout << "Select an option: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                lowpassfilter();
+                break;
+            case 2:
+                highpassfilter();
+                break;
+            case 3:
+                std::cout << "Returning to main menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option. Try again.\n";
+        }
+    } while (choice != 3); // Repeat the menu until the user chooses to exit
+
+  //  std::cout << "\n>> High or Low pass RC Filters\n";
+}
+
+void lowpassfilter() {
+    std::cout << "          +----- R ---------------o V_out\n";
+    std::cout << "          ^                |      ^ \n";
+    std::cout << "    V_in  |                C      | \n";
+    std::cout << "          |                |      |\n";
+    std::cout << "          +----------------|------o\n";
+
+    int choice;
+    do {
+        std::cout << "1. Calculate resistance\n";
+        std::cout << "2. Calculate capacitance\n";
+        std::cout << "3. Calculate cutoff frequency\n";
+        std::cout << "4. Back to Filter Menu\n";
+        std::cout << "Select an option: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                calculate_res_filter();
+                break;
+            case 2:
+                calculate_cap_filter();
+                break;
+            case 3:
+                calculate_coff_freq_filter();
+                break;
+            case 4:
+                std::cout << "Returning to Filter Menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option. Try again.\n";
+        }
+    } while (choice != 4);
+}
+
+void highpassfilter() {
+    std::cout << "          +----- C ---------------o V_out\n";
+    std::cout << "          ^                |      ^ \n";
+    std::cout << "    V_in  |                R      | \n";
+    std::cout << "          |                |      |\n";
+    std::cout << "          +----------------|------o\n";
+
+    int choice;
+    do {
+        std::cout << "1. Calculate resistance\n";
+        std::cout << "2. Calculate capacitance\n";
+        std::cout << "3. Calculate cutoff frequency\n";
+        std::cout << "4. Back to Filter Menu\n";
+        std::cout << "Select an option: ";
+        std::cin >> choice;
+
+        switch (choice) {
+            case 1:
+                calculate_res_filter();
+                break;
+            case 2:
+                calculate_cap_filter();
+                break;
+            case 3:
+                calculate_coff_freq_filter();
+                break;
+            case 4:
+                std::cout << "Returning to Main Menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option. Try again.\n";
+        }
+    } while (choice != 4);
+}
+
+void calculate_res_filter() {
+    float capacitance, frequency, resistance_needed;
+
+    std::cout << "Enter capacitor value in Farads: ";
+    std::cin >> capacitance;
+    std::cout << "Enter desired cutoff frequency in Hertz: ";
+    std::cin >> frequency;
+
+    resistance_needed = 1 / (2 * M_PI * capacitance * frequency);
+    std::cout << "Required resistance = " << resistance_needed << " ohms\n";
+}
+
+void calculate_cap_filter() {
+    float resistance, frequency, capacitance_needed;
+
+    std::cout << "Enter resistor value in Ohms: ";
+    std::cin >> resistance;
+    std::cout << "Enter desired cutoff frequency in Hertz: ";
+    std::cin >> frequency;
+
+    capacitance_needed = 1 / (2 * M_PI * resistance * frequency);
+    std::cout << "Required capacitance = " << capacitance_needed << " Farads\n";
+}
+
+void calculate_coff_freq_filter() {
+    float capacitance, resistance, cutoff_frequency;
+
+    std::cout << "Enter capacitor value in Farads: ";
+    std::cin >> capacitance;
+    std::cout << "Enter resistor value in Ohms: ";
+    std::cin >> resistance;
+
+    cutoff_frequency = 1 / (2 * M_PI * capacitance * resistance);
+    std::cout << "Cutoff frequency = " << cutoff_frequency << " Hz\n";
 }
 
 
