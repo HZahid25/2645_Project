@@ -480,7 +480,7 @@ void lowpassfilter() {
     std::cout << "          ^                |      ^ \n";
     std::cout << "    V_in  |                C      | \n";
     std::cout << "          |                |      |\n";
-    std::cout << "          +----------------|------o\n";
+    std::cout << "          +-----------------------o\n";
     int choice;
     do {
         std::cout << "1. Calculate resistance\n";
@@ -512,7 +512,7 @@ void highpassfilter() {
     std::cout << "          ^                |      ^ \n";
     std::cout << "    V_in  |                R      | \n";
     std::cout << "          |                |      |\n";
-    std::cout << "          +----------------|------o\n";
+    std::cout << "          +-----------------------o\n";
     int choice;
     do {
         std::cout << "1. Calculate resistance\n";
