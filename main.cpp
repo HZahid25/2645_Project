@@ -87,7 +87,7 @@ void print_main_menu() {
   std::cout << "|\t\t\t\t\t|\n";
   std::cout << "|\t1. Resistor Calculator\t\t|\n";
   std::cout << "|\t2. Op Amp Configurator\t\t|\n";
-  std::cout << "|\t3. Menu item 3\t\t\t|\n";
+  std::cout << "|\t3. Pass Filter Calculator\t|\n";
   std::cout << "|\t4. Sallen Key Filter  \t\t|\n";
   std::cout << "|\t5. Exit\t\t\t\t|\n";
   std::cout << "|\t\t\t\t\t|\n";
