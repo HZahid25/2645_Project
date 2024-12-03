@@ -284,12 +284,15 @@ void combine_resistors() {
 
 void find_nearest_npv_resistor() {
     std::vector<double> npv_resistors = {
-        1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
-        10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
-        100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
-        1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
-        10000 // Expandable for other series (E24, E48, etc.)
-    };
+    1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
+    10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
+    100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
+    1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
+    10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
+    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
+    1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
+    10000000 // Extendable for even higher ranges
+};
 
     double target_resistance;
     std::cout << "Enter target resistance (in ohms): ";
@@ -329,28 +332,30 @@ void find_nearest_npv_resistor() {
     }
 
 }
+std::vector<double> npv_resistors = {
+    1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
+    10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
+    100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
+    1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
+    10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
+    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
+    1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
+    10000000 // Extendable for even higher ranges
+};
+
+// Maps for color code
+std::map<int, std::string> digit_to_color = {
+    {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
+    {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"}
+};
+
+std::map<int, std::string> multiplier_to_color = {
+    {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
+    {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"},
+    {-1, "gold"}, {-2, "silver"}
+};
+
 void get_npv_and_color_code_for_resistor(double resistance) {
-    // Define the E12 series (preferred values)
-    std::vector<double> npv_resistors = {
-        1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
-        10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
-        100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
-        1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
-        10000 // Extendable for other series
-    };
-
-    // Vector for color codes
-    std::map<int, std::string> digit_to_color = {
-        {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
-        {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"}
-    };
-
-    // Vector for multiplier codes
-    std::map<int, std::string> multiplier_to_color = {
-        {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
-        {5, "green"}, {6, "blue"}, {-1, "gold"}, {-2, "silver"}
-    };
-
     // Find the closest NPV resistor
     double closest_resistor = npv_resistors[0];
     double min_difference = std::abs(resistance - closest_resistor);
@@ -362,28 +367,36 @@ void get_npv_and_color_code_for_resistor(double resistance) {
             min_difference = difference;
         }
     }
-    // Outputs the NPV resistor
+
     std::cout << "Nearest NPV resistor: " << closest_resistor << " ohms\n";
 
     // Calculate color code
     int magnitude = static_cast<int>(std::log10(closest_resistor));
-    int significant_value = static_cast<int>(closest_resistor / std::pow(10, magnitude));
+    double normalized_value = closest_resistor / std::pow(10, magnitude);
+    int significant_value = static_cast<int>(normalized_value * 10);
 
     int first_digit = significant_value / 10;
     int second_digit = significant_value % 10;
 
-    if (first_digit >= 0 && first_digit <= 9 && second_digit >= 0 && second_digit <= 9) {
+    // Adjust multiplier for exact matching
+    if (normalized_value < 1.0) {
+        --magnitude;
+        normalized_value *= 10;
+    }
+
+    if (digit_to_color.find(first_digit) != digit_to_color.end() &&
+        digit_to_color.find(second_digit) != digit_to_color.end() &&
+        multiplier_to_color.find(magnitude) != multiplier_to_color.end()) {
         std::string first_band = digit_to_color[first_digit];
         std::string second_band = digit_to_color[second_digit];
         std::string multiplier_band = multiplier_to_color[magnitude];
 
-    // Outputs the color code of the input resistor
         std::cout << "Color Code: [" << first_band << ", " << second_band << ", " << multiplier_band << "]\n";
-    }
-    else {
+    } else {
         std::cout << "Error: Unable to calculate color code for this resistor.\n";
     }
 }
+
 
 void menu_item_2() {
     int choice;
