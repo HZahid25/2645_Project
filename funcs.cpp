@@ -373,16 +373,15 @@ void get_npv_and_color_code_for_resistor(double resistance) {
     // Calculate color code
     int magnitude = static_cast<int>(std::log10(closest_resistor));
     double normalized_value = closest_resistor / std::pow(10, magnitude);
-    int significant_value = static_cast<int>(normalized_value * 10);
 
-    int first_digit = significant_value / 10;
-    int second_digit = significant_value % 10;
-
-    // Adjust multiplier for exact matching
-    if (normalized_value < 1.0) {
-        --magnitude;
-        normalized_value *= 10;
+    // Adjust for edge cases where normalized value is exactly 10
+    if (normalized_value >= 10.0) {
+        normalized_value /= 10;
+        ++magnitude;
     }
+
+    int first_digit = static_cast<int>(normalized_value);
+    int second_digit = static_cast<int>((normalized_value - first_digit) * 10);
 
     if (digit_to_color.find(first_digit) != digit_to_color.end() &&
         digit_to_color.find(second_digit) != digit_to_color.end() &&
@@ -555,7 +554,6 @@ void highpassfilter() {
 
 void menu_item_3() {
     std::cout << "\n>> Menu 3\n";
-    
     // you can call a function from here that handles menu 3
     int choice;
     do {
@@ -756,5 +754,3 @@ void menu_item_4() {
     // Optional: Go back to the main menu after exiting this submenu
     std::cout << "\nReturning to the main menu...\n";
 }
-
-
