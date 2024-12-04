@@ -8,15 +8,28 @@
 #include <algorithm> // For std::transform
 #include "funcs.h"
 
-float inverting_input_voltage;
-float non_inverting_input_voltage;
-float feedback_resistor;
-float input_resistor;
-float ground_resistor;
-float gain;
+
+void clearscreen() {
+#ifdef _WIN32
+    system("cls");
+#endif // !Win32
+
+}
+
+bool validate_positive_input(double& value, const std::string& prompt) {
+    std::cout << prompt;
+    std::cin >> value;
+    if (std::cin.fail() || value <= 0) { // checks if input is less than negative
+        std::cin.clear(); // Clear error flag
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+        std::cerr << "Error: Value must be a positive number.\n";
+        return false;
+    }
+    return true;
+}
 
 
-// Helper to calculate cutoff frequency
+// Function to calculate cutoff frequency
 static double calculate_cutoff_frequency(double r, double c, double factor = 1.0) {
     return 1 / (r * c * 2 * 3.14 * factor);
 }
@@ -31,6 +44,59 @@ void display_cutoff_frequency(float cutoff_freq) {
     }
     else {
         std::cout << "The cutoff frequency is " << cutoff_freq << " Hz\n";
+    }
+}
+
+// Function to convert resistance based on the unit
+void resistor_input(double raw_resist, double& resistance, const std::string& unit) {
+    if (unit == "k" || unit == "K") {
+        resistance = raw_resist * 1e3; // Kilo-ohms to ohms
+    }
+    else if (unit == "M" || unit == "m") {
+        resistance = raw_resist * 1e6; // Mega-ohms to ohms
+    }
+    else if (unit == "O" || unit == "o") {
+        resistance = raw_resist; // Ohms
+    }
+    else {
+        std::cerr << "Invalid unit. Please use 'k' for kilo-ohms, 'M' for mega-ohms, or 'O' for ohms.\n";
+        resistance = 0; // 
+    }
+}
+
+// Function to convert resistance based on the unit
+void Fc_input(double raw_freq, double& frequency, const std::string& unit) {
+    if (unit == "k" || unit == "K") {
+        frequency = raw_freq * 1e3; // Kilo-ohms to ohms
+    }
+    else if (unit == "M" || unit == "m") {
+        frequency = raw_freq * 1e6; // Mega-ohms to ohms
+    }
+    else if (unit == "H" || unit == "h") {
+        frequency = raw_freq; // 
+    }
+    else {
+        std::cerr << "Invalid unit. Please use 'k' for Kilo Hz, 'M' for Mega Hz, or 'H' for hertz.\n";
+        frequency = 0; // 
+    }
+}
+
+
+// Function to convert resistance based on the unit
+void capacitor_input(double raw_cap, double& capacitance, const std::string& unit) {
+    // Convert capacitance to farads
+    if (unit == "µ" || unit == "u") { // Microfarads to farads
+        capacitance = raw_cap * 1e-6;
+    }
+    else if (unit == "n") { // Nanofarads to farads
+        capacitance = raw_cap * 1e-9;
+    }
+    else if (unit == "p") { // Picofarads to farads
+        capacitance = raw_cap * 1e-12;
+    }
+    else {
+        std::cerr << "Invalid unit. Please use µ (microfarads), n (nanofarads), or p (picofarads).\n";
+        capacitance = 0;
     }
 }
 
@@ -56,7 +122,6 @@ void butterworth_filter(int num_poles, float r, float c) {
         display_cutoff_frequency(cutoff_freq);
     }
 }
-
 
 // Function to fetch gains and factors based on Chebyshev type and poles
 void chebyshev_filter_data(int num_poles, int type, std::vector<float>& gains, std::vector<float>& factors_low, std::vector<float>& factors_high) {
@@ -116,25 +181,6 @@ void chebyshev_filter(int num_poles, int type, const std::string& filter_type, f
     }
 }
 
-
-void clearscreen() {
-#ifdef _WIN32
-    system("cls");
-#endif // !Win32
-
-}
-bool validate_positive_input(float& value, const std::string& prompt) {
-    std::cout << prompt;
-    std::cin >> value;
-    if (std::cin.fail() || value <= 0) {
-        std::cin.clear(); // Clear error flag
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
-        std::cerr << "Error: Value must be a positive number.\n";
-        return false;
-    }
-    return true;
-}
-
 void go_back_to_main() {
     std::string input;
     do {
@@ -183,6 +229,7 @@ void menu_item_1() {
         }
     } while (choice != 5);
 }
+
 void calculate_resistor_from_color_code() {
     // Define color-to-value and multiplier maps
     std::map<std::string, int> color_code = {
@@ -291,8 +338,8 @@ void find_nearest_npv_resistor() {
     10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
     100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
     1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
-    10000000 // Extendable for even higher ranges
-};
+    10000000 
+    };
 
     double target_resistance;
     std::cout << "Enter target resistance (in ohms): ";
@@ -332,30 +379,31 @@ void find_nearest_npv_resistor() {
     }
 
 }
-std::vector<double> npv_resistors = {
-    1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
-    10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
-    100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
-    1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
-    10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
-    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
-    1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
-    10000000 // Extendable for even higher ranges
-};
-
-// Maps for color code
-std::map<int, std::string> digit_to_color = {
-    {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
-    {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"}
-};
-
-std::map<int, std::string> multiplier_to_color = {
-    {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
-    {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"},
-    {-1, "gold"}, {-2, "silver"}
-};
 
 void get_npv_and_color_code_for_resistor(double resistance) {
+
+    std::vector<double> npv_resistors = {
+        1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
+        10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
+        100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
+        1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
+        10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
+        100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
+        1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
+        10000000 // E12 series
+    };
+
+    // Maps for color code
+    std::map<int, std::string> digit_to_color = {
+        {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
+        {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"}
+    };
+    std::map<int, std::string> multiplier_to_color = {
+        {0, "black"}, {1, "brown"}, {2, "red"}, {3, "orange"}, {4, "yellow"},
+        {5, "green"}, {6, "blue"}, {7, "violet"}, {8, "gray"}, {9, "white"},
+        {-1, "gold"}, {-2, "silver"}
+    };
+
     // Find the closest NPV resistor
     double closest_resistor = npv_resistors[0];
     double min_difference = std::abs(resistance - closest_resistor);
@@ -368,12 +416,12 @@ void get_npv_and_color_code_for_resistor(double resistance) {
         }
     }
 
+    // Outputs the NPV resistor
     std::cout << "Nearest NPV resistor: " << closest_resistor << " ohms\n";
 
     // Calculate color code
     int magnitude = static_cast<int>(std::log10(closest_resistor));
     double normalized_value = closest_resistor / std::pow(10, magnitude);
-
     // Adjust for edge cases where normalized value is exactly 10
     if (normalized_value >= 10.0) {
         normalized_value /= 10;
@@ -390,20 +438,25 @@ void get_npv_and_color_code_for_resistor(double resistance) {
         std::string second_band = digit_to_color[second_digit];
         std::string multiplier_band = multiplier_to_color[magnitude];
 
+    // Outputs the color code of the input resistor
         std::cout << "Color Code: [" << first_band << ", " << second_band << ", " << multiplier_band << "]\n";
     } else {
         std::cout << "Error: Unable to calculate color code for this resistor.\n";
     }
 }
 
-
 void menu_item_2() {
     int choice;
-    std::string repeat_choice;
+    double inverting_input_voltage;
+    double non_inverting_input_voltage;
+    double feedback_resistor;
+    double input_resistor;
+    double ground_resistor;
+    double gain;
+    std::string repeat_choice, unit;
     do {
     clearscreen();
     std::cout << "\n>> The Op-Amp \n";
-
 
     // Display a sub-menu for selecting the op-amp configuration
     std::cout << "\nOp-Amp Configuration:\n";
@@ -417,10 +470,26 @@ void menu_item_2() {
         if (choice == 1) {
             // Inverting Op-Amp
             std::cout << "\n>> Inverting Op-Amp Configuration\n";
-
+            std::cout << R"(
+                         *----| FR |----*
+                         |              |
+                         |     |\       |
+            Vin--| IR |--*-----|-\      |
+                               |  \_____*____Vout
+                               |  /     
+                         *-----|+/                         
+                         |     |/       
+                       -----
+                        --- 
+            )" << std::endl;
             // Validate each input
-            if (!validate_positive_input(inverting_input_voltage, "Enter the inverting input voltage (volts): "))
-                return;
+            std::cout << "Enter the inverting input voltage (volts): ";
+            while (!(std::cin >> inverting_input_voltage)) {
+                std::cin.clear(); // Clear the error flag
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+                std::cout << "Invalid input. Please enter a numeric value for the inverting input voltage: ";
+            }
+
             if (!validate_positive_input(feedback_resistor, "Enter the feedback resistor value (ohms): "))
                 return;
             if (!validate_positive_input(input_resistor, "Enter the input resistor value (ohms): "))
@@ -429,14 +498,52 @@ void menu_item_2() {
             gain = -feedback_resistor / input_resistor;
             float output_voltage = gain * inverting_input_voltage;
 
-            std::cout << "\nThe gain of the inverting op-amp is: " << gain << "\n";
-            std::cout << "The output voltage is: " << output_voltage << " V\n";
+            // Use the absolute value of the output voltage for unit handling
+            double abs_output_voltage = fabs(output_voltage);
 
+            // Perform unit conversion based on magnitude
+            if (abs_output_voltage >= 1e-3 && abs_output_voltage < 1) {
+                abs_output_voltage *= 1e3;  // Convert to millivolts
+                unit = "mV";
+            }
+            else if (abs_output_voltage >= 1e-6 && abs_output_voltage < 1e-3) {
+                abs_output_voltage *= 1e6;  // Convert to microvolts
+                unit = "uV";
+            }
+            else {
+                unit = "V";  // Keep as volts
+            }
+
+            // Restore sign for display
+            double final_output_voltage = (output_voltage < 0) ? -abs_output_voltage : abs_output_voltage;
+
+            // Display results
+            std::cout << "\nThe gain of the inverting op-amp is: " << gain << "\n";
+            std::cout << "The output voltage is: " << final_output_voltage << " " << unit << "\n";
         }
         else if (choice == 2) {
             // Non-Inverting Op-Amp
             std::cout << "\n>> Non-Inverting Op-Amp Configuration\n";
-
+            std::cout << R"(
+      
+                               |\       
+            Vin--| IR |--*-----|+\      
+                               |  \_____*____Vout
+                               |  /     |
+                         *-----|-/    |----|                   
+                         |     |/     | FR |
+                         |            |----|
+                         |              |
+                         *--------------*
+                                        |  
+                                      |----|                   
+                                      | GR |
+                                      |----|
+                                        |
+                                        |
+                                      -----
+                                       --- 
+            )" << std::endl;
             // Validate each input
             if (!validate_positive_input(non_inverting_input_voltage, "Enter the non-inverting input voltage (volts): "))
                 return;
@@ -447,9 +554,20 @@ void menu_item_2() {
 
             gain = 1 + (feedback_resistor / ground_resistor);
             float output_voltage = gain * non_inverting_input_voltage;
-
+            if (output_voltage <= 1e6 && output_voltage > 1e3) {
+                output_voltage *= 1e-3;
+                unit = "kV";
+            }
+            else if (output_voltage >= 1e6) {
+                output_voltage *= 1e-6;
+                unit = "MV";
+            }
+            else if (output_voltage <= 1e3 && output_voltage > 1) {
+                unit = "V";
+            }
             std::cout << "\nThe gain of the non-inverting op-amp is: " << gain << "\n";
-            std::cout << "The output voltage is: " << output_voltage << " V\n";
+
+            std::cout << "The output voltage is: " << output_voltage << " " << unit << "\n";
 
         }
         else if (choice == 3) {
@@ -460,34 +578,139 @@ void menu_item_2() {
         std::cin >> repeat_choice;
     } while (repeat_choice == "y" || repeat_choice == "Y");
 }
+
 void calculate_res_filter() {
-    float capacitance, frequency, resistance_needed;
-    std::cout << "Enter capacitor value in Farads: ";
-    std::cin >> capacitance;
-    std::cout << "Enter desired cutoff frequency in Hertz: ";
-    std::cin >> frequency;
+
+    float  resistance_needed;
+    double raw_cap, raw_freq, frequency = 0, capacitance = 0;
+    std::string unit;
+
+    std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_cap, "Enter the capacitor value: "))
+        return;
+
+    capacitor_input(raw_cap, capacitance, unit);
+    if (capacitance == 0) {
+        std::cerr << "Invalid input.\n";
+        return;
+    }
+
+    std::cout << "Enter unit (k for Kilo Hz, M for Mega Hz, H for Hz): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_freq, "Enter the frequency value: "))
+        return;
+
+    Fc_input(raw_freq, frequency, unit);
+    if (frequency == 0) {
+        std::cerr << "Invalid input.\n";
+        return;
+    }
+    
     resistance_needed = 1 / (2 * 3.14 * capacitance * frequency);
-    std::cout << "Required resistance = " << resistance_needed << " ohms\n";
+    if (resistance_needed > 1e3) {
+        resistance_needed = resistance_needed / 1e3;
+        unit = "kOhms";
+    }
+    else if (resistance_needed > 1e6) {
+        resistance_needed = resistance_needed / 1e6;
+        unit = "MOhms";
+    }
+    else{
+        resistance_needed;
+        unit = "Ohms";
+    }
+    std::cout << "Required resistance = " << resistance_needed << " " << unit << "\n";
+
 }
 void calculate_cap_filter() {
-    float resistance, frequency, capacitance_needed;
-    std::cout << "Enter resistor value in Ohms: ";
-    std::cin >> resistance;
-    std::cout << "Enter desired cutoff frequency in Hertz: ";
-    std::cin >> frequency;
+    float  capacitance_needed;
+    double raw_freq, raw_resist, resistance = 0, frequency = 0;
+    std::string unit;
+
+    std::cout << "Enter unit (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_resist, "Enter the resistor value: "))
+        return;
+
+    resistor_input(raw_resist, resistance, unit);
+    if (resistance == 0) {
+        std::cerr << "Invalid resistance input.\n";
+        return;
+    }
+
+    std::cout << "Enter unit (k for Kilo Hz, M for Mega Hz, H for Hz): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_freq, "Enter the frequency value: "))
+        return;
+
+    Fc_input(raw_freq, frequency, unit);
+    if (frequency == 0) {
+        std::cerr << "Invalid input.\n";
+        return;
+    }
+
     capacitance_needed = 1 / (2 * 3.14 * resistance * frequency);
-    std::cout << "Required capacitance = " << capacitance_needed << " Farads\n";
+    // Determine the unit of capacitance
+    if (1e-9 < capacitance_needed >= 1e-6) {
+        capacitance_needed *= 1e6;
+        unit = "uF"; // Microfarads
+    }
+    else if (1e-12 < capacitance_needed >= 1e-9) {
+        capacitance_needed *= 1e9;
+        unit = "nF"; // Nanofarads
+    }
+    else {
+        capacitance_needed *= 1e12;
+        unit = "pF"; // Picofarads
+    }
+    std::cout << "Required capacitance = " << capacitance_needed << " " << unit << "\n";
 }
 void calculate_coff_freq_filter() {
-    float capacitance, resistance, cutoff_frequency;
-    std::cout << "Enter capacitor value in Farads: ";
-    std::cin >> capacitance;
-    std::cout << "Enter resistor value in Ohms: ";
-    std::cin >> resistance;
-    cutoff_frequency = 1 / (2 * 3.14 * capacitance * resistance);
+    double raw_cap, raw_resist, resistance = 0, capacitance = 0;
+    std::string unit;
+    float cutoff_frequency;
+
+    std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_cap, "Enter the capacitor value: "))
+      return;
+
+    capacitor_input(raw_cap, capacitance, unit);
+    if (capacitance == 0) {
+       std::cerr << "Invalid input.\n";
+       return;
+    }
+
+    std::cout << "Enter unit (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_resist, "Enter the resistor value: "))
+        return;
+
+    resistor_input(raw_resist, resistance, unit);
+    if (resistance == 0) {
+        std::cerr << "Invalid resistance input.\n";
+        return;
+    }
+
+    cutoff_frequency = calculate_cutoff_frequency(resistance, capacitance, 1.0);
     std::cout << "Cutoff frequency = " << cutoff_frequency << " Hz\n";
 }
 void lowpassfilter() {
+    clearscreen();
+    std::cout << "Selected low Pass Filter:\n";
     std::cout << "          +----- R ---------------o V_out\n";
     std::cout << "          ^                |      ^ \n";
     std::cout << "    V_in  |                C      | \n";
@@ -516,10 +739,13 @@ void lowpassfilter() {
             break;
         default:
             std::cout << "Invalid option. Try again.\n";
+            return;
         }
     } while (choice != 4);
 }
 void highpassfilter() {
+    clearscreen();
+    std::cout << "Selected high pass filter:\n";
     std::cout << "          +----- C ---------------o V_out\n";
     std::cout << "          ^                |      ^ \n";
     std::cout << "    V_in  |                R      | \n";
@@ -553,11 +779,10 @@ void highpassfilter() {
 }
 
 void menu_item_3() {
-    std::cout << "\n>> Menu 3\n";
-    // you can call a function from here that handles menu 3
     int choice;
     do {
         clearscreen();
+        // Sub menu item 3
         std::cout << "\n--- Filter Calculator ---\n";
         std::cout << "Are you building a High pass filter or a Low pass filter?\n";
         std::cout << "1. Low Pass Filter\n";
@@ -565,6 +790,15 @@ void menu_item_3() {
         std::cout << "3. Exit to Main Menu\n";
         std::cout << "Select an option: ";
         std::cin >> choice;
+
+        // Check for invalid input
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+            std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+            return; 
+        }
+
         switch (choice) {
         case 1:
             lowpassfilter();
@@ -582,11 +816,10 @@ void menu_item_3() {
     //  std::cout << "\n>> High or Low pass RC Filters\n";
 }
 
-
+// Sallen Key circuit diagram
 void print_sallen_key_diagram(double r, double c, double ra, double rb) {
-    std::cout << "\nGeneral Sallen-Key Filter Circuit Diagram:\n";
     std::cout << R"(
-|--------------------------------------------------------------------------------------------------------------|
+|---------------------------------General Sallen-Key Filter Circuit Diagram:-----------------------------------|
 |                                                                                                              |    
 |                                              |-----|                                                         |
 |                                *-------------| Z3  |------------------------------------*                    |
@@ -620,14 +853,29 @@ void print_sallen_key_diagram(double r, double c, double ra, double rb) {
 )" << std::endl;
 
 }
+
+// Asks the user to input circuit components
 void get_component_values(double& r, double& c, double& ra, double& rb) {
     std::cout << "\nEnter values for Resistors and Capacitors:\n";
 
-    std::cout << "  R = R1 = R2 (shared value for Z1 and Z3) in ohms: ";
+    std::cout << "  Enter R = R1 = R2 (shared value for Z1 and Z3) in ohms: ";
     std::cin >> r;
 
-    std::cout << "  C = C1 = C2 (shared value for Z2 and Z4): ";
-    std::cin >> c;
+    std::string unit;
+    double raw_cap, resistance = 0;
+
+    std::cout << "  Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
+    std::cin >> unit;
+
+    // Get resistance input
+    if (!validate_positive_input(raw_cap, " Enter C = C1 = C2 (shared value for Z2 and Z4): "))
+        return;
+
+    capacitor_input(raw_cap, c, unit);
+    if (c == 0) {
+        std::cerr << "  Invalid capacitance input.\n";
+        return;
+    }
 
     std::cout << "  RA: ";
     std::cin >> ra;
@@ -684,8 +932,8 @@ void menu_item_4() {
         //Outputs of a high pass circuit
         if (filter_type == "high") {
             std::cout << "\nComponent Values:\n";
-            std::cout << "  Z1 = C1 = " << c << " micro farads\n";
-            std::cout << "  Z2 = C2 = " << r << " micro farads\n";
+            std::cout << "  Z1 = C1 = " << c << " farads\n";
+            std::cout << "  Z2 = C2 = " << r << " farads\n";
             std::cout << "  Z3 = R1 = " << c << " ohms\n";
             std::cout << "  Z4 = R2 = " << r << " ohms\n";
             std::cout << "\n Resistor R: \n";
@@ -696,8 +944,8 @@ void menu_item_4() {
             std::cout << "\nComponent Values:\n";
             std::cout << "  Z1 = R1 = " << c << " ohms\n";
             std::cout << "  Z2 = R2 = " << r << " ohms\n";
-            std::cout << "  Z3 = C1 = " << c << " micro farads\n";
-            std::cout << "  Z4 = C2 = " << r << " micro farads\n";
+            std::cout << "  Z3 = C1 = " << c << " farads\n";
+            std::cout << "  Z4 = C2 = " << r << " farads\n";
             std::cout << "\n Resistor R: \n";
             get_npv_and_color_code_for_resistor(r);
         }
@@ -754,3 +1002,5 @@ void menu_item_4() {
     // Optional: Go back to the main menu after exiting this submenu
     std::cout << "\nReturning to the main menu...\n";
 }
+
+
