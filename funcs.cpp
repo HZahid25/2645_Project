@@ -555,7 +555,7 @@ void highpassfilter() {
 
 void menu_item_3() {
     std::cout << "\n>> Menu 3\n";
-    std::cout << "\nSome code here does something useful\n";
+    
     // you can call a function from here that handles menu 3
     int choice;
     do {
