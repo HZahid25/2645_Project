@@ -54,9 +54,6 @@ void display_cutoff_frequency(float cutoff_freq) {
     }
 }
 
-#include <iostream>
-#include <string>
-
 // Function to convert resistance based on the unit
 void resistor_input(double raw_resist, double& resistance, std::string& unit) {
     bool valid = false;
