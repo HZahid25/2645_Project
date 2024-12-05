@@ -81,41 +81,52 @@ void resistor_input(double raw_resist, double& resistance, std::string& unit) {
     }
 }
 
-// Function to convert resistance based on the unit
-void Fc_input(double raw_freq, double& frequency, const std::string& unit) {
-    if (unit == "k" || unit == "K") {
-        frequency = raw_freq * 1e3; // Kilo-ohms to ohms
-    }
-    else if (unit == "M" || unit == "m") {
-        frequency = raw_freq * 1e6; // Mega-ohms to ohms
-    }
-    else if (unit == "H" || unit == "h") {
-        frequency = raw_freq; // 
-    }
-    else {
-        std::cerr << "Invalid unit. Please use 'k' for Kilo Hz, 'M' for Mega Hz, or 'H' for hertz.\n";
-        frequency = 0; // 
-    }
-}
-
-// Function to convert resistance based on the unit
-void capacitor_input(double raw_cap, double& capacitance, const std::string& unit) {
-    // Convert capacitance to farads
-    if (unit == "µ" || unit == "u") { // Microfarads to farads
-        capacitance = raw_cap * 1e-6;
-    }
-    else if (unit == "n") { // Nanofarads to farads
-        capacitance = raw_cap * 1e-9;
-    }
-    else if (unit == "p") { // Picofarads to farads
-        capacitance = raw_cap * 1e-12;
-    }
-    else {
-        std::cerr << "Invalid unit. Please use µ (microfarads), n (nanofarads), or p (picofarads).\n";
-        capacitance = 0;
+// Function to convert frequency based on the unit
+void Fc_input(double raw_freq, double& frequency, std::string& unit) {
+    bool valid = false; // Validation flag
+    while (!valid) {
+        if (unit == "k" || unit == "K") {
+            frequency = raw_freq * 1e3; // Kilo Hz to Hz
+            valid = true;
+        }
+        else if (unit == "M" || unit == "m") {
+            frequency = raw_freq * 1e6; // Mega Hz to Hz
+            valid = true;
+        }
+        else if (unit == "H" || unit == "h") {
+            frequency = raw_freq; // Hertz
+            valid = true;
+        }
+        else {
+            std::cerr << "Invalid unit. Please use 'k' for Kilo Hz, 'M' for Mega Hz, or 'H' for Hertz.\n";
+            std::cout << "Enter a valid unit: ";
+            std::cin >> unit; // Re-prompt for unit
+        }
     }
 }
-
+// Function to convert capacitance based on the unit
+void capacitor_input(double raw_cap, double& capacitance, std::string& unit) {
+    bool valid = false; // Validation flag
+    while (!valid) {
+        if (unit == "µ" || unit == "u") { // Microfarads to farads
+            capacitance = raw_cap * 1e-6;
+            valid = true;
+        }
+        else if (unit == "n") { // Nanofarads to farads
+            capacitance = raw_cap * 1e-9;
+            valid = true;
+        }
+        else if (unit == "p") { // Picofarads to farads
+            capacitance = raw_cap * 1e-12;
+            valid = true;
+        }
+        else {
+            std::cerr << "Invalid unit. Please use µ (microfarads), n (nanofarads), or p (picofarads).\n";
+            std::cout << "Enter a valid unit: ";
+            std::cin >> unit; // Re-prompt for unit
+        }
+    }
+}
 // Function to return to main menu
 void go_back_to_main() {
     std::string input;
@@ -402,6 +413,9 @@ void menu_item_2() {
     std::cout << "Select choice: ";
     std::cin >> choice;
 
+            double raw_resist;
+            std::string unit;
+
         // Perform calculations based on the user's choice
         if (choice == 1) {
             // Inverting Op-Amp
@@ -426,10 +440,30 @@ void menu_item_2() {
                 std::cout << "Invalid input. Please enter a numeric value for the inverting input voltage: ";
             }
 
-            if (!validate_positive_input(feedback_resistor, "Enter the feedback resistor value (ohms): "))
+
+
+            // Get resistance input
+            std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+            std::cin >> unit;
+            if (!validate_positive_input(raw_resist, "Enter the feedback resistor value (ohms): ")) {
+                std::cout << "Please enter a positive integer: ";
+                std::cin >> raw_resist;
+            }
+            resistor_input(raw_resist, feedback_resistor, unit);
+            if (feedback_resistor <= 0) {
+                std::cerr << "Invalid resistance input.\n";
                 return;
-            if (!validate_positive_input(input_resistor, "Enter the input resistor value (ohms): "))
+            }
+
+            if (!validate_positive_input(input_resistor, "Enter the input resistor value (ohms): ")) {
+                std::cout << "Please enter a positive integer: ";
+                std::cin >> raw_resist;
+            }
+            resistor_input(raw_resist, feedback_resistor, unit);
+            if (input_resistor <= 0) {
+                std::cerr << "Invalid resistance input.\n";
                 return;
+            }
 
             gain = -feedback_resistor / input_resistor;
             float output_voltage = gain * inverting_input_voltage;
@@ -797,25 +831,18 @@ void print_sallen_key_diagram() {
 // Asks the user to input circuit components
 void get_component_values(double& r, double& c, double& ra, double& rb) {
     std::cout << "\nEnter values for Resistors and Capacitors:\n";
-    double raw_resist;
+    double raw_resist, raw_cap;
     std::string unit;
 
    
     // Get resistance input
     std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
-    if (!validate_positive_input(raw_resist, "Enter the resistance of RA : ")) {
+    if (!validate_positive_input(raw_resist, "Enter the resistance of R = R1 = R2 : ")) {
         std::cout << "Please enter a positive integer: ";
         std::cin >> raw_resist;
     }
-
     resistor_input(raw_resist, r, unit);
-    if (r == 0) {
-        std::cerr << "Invalid resistance input.\n";
-        return;
-    }
-
-    double raw_cap, resistance = 0;
 
     std::cout << "\nEnter unit for C (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
@@ -825,7 +852,7 @@ void get_component_values(double& r, double& c, double& ra, double& rb) {
         return;
 
     capacitor_input(raw_cap, c, unit);
-    if (c == 0) {
+    if (c <= 0) {
         std::cerr << " \nInvalid capacitance input.";
         return;
     }
@@ -836,12 +863,8 @@ void get_component_values(double& r, double& c, double& ra, double& rb) {
         std::cout << "Please enter a positive integer: ";
         std::cin >> raw_resist;
     }
-
     resistor_input(raw_resist, ra, unit);
-    if (ra == 0) {
-        std::cerr << "Invalid resistance input.\n";
-   
-    }
+
 
 }
 
@@ -1067,8 +1090,6 @@ void menu_item_4() {
 
     std::cout << "\nReturning to the main menu...\n";
 }
-
-
 
 
 
