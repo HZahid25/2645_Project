@@ -44,30 +44,40 @@ double calculate_cutoff_frequency(double r, double c, double factor = 1.0) {
 // Function to display cutoff frequency with units
 void display_cutoff_frequency(float cutoff_freq) {
     if (cutoff_freq > 1e6) {
-        std::cout << "The cutoff frequency is " << cutoff_freq / 1e6 << " MHz\n";
+        std::cout << "\nThe cutoff frequency is " << cutoff_freq / 1e6 << " MHz\n";
     }
     else if (cutoff_freq > 1e3) {
-        std::cout << "The cutoff frequency is " << cutoff_freq / 1e3 << " kHz\n";
+        std::cout << "\nThe cutoff frequency is " << cutoff_freq / 1e3 << " kHz\n";
     }
     else {
-        std::cout << "The cutoff frequency is " << cutoff_freq << " Hz\n";
+        std::cout << "\nThe cutoff frequency is " << cutoff_freq << " Hz\n";
     }
 }
 
+#include <iostream>
+#include <string>
+
 // Function to convert resistance based on the unit
-void resistor_input(double raw_resist, double& resistance, const std::string& unit) {
-    if (unit == "k" || unit == "K") {
-        resistance = raw_resist * 1e3; // Kilo-ohms to ohms
-    }
-    else if (unit == "M" || unit == "m") {
-        resistance = raw_resist * 1e6; // Mega-ohms to ohms
-    }
-    else if (unit == "O" || unit == "o") {
-        resistance = raw_resist; // Ohms
-    }
-    else {
-        std::cerr << "Invalid unit. Please use 'k' for kilo-ohms, 'M' for mega-ohms, or 'O' for ohms.\n";
-        resistance = 0; // 
+void resistor_input(double raw_resist, double& resistance, std::string& unit) {
+    bool valid = false;
+    while (!valid) {
+        if (unit == "k" || unit == "K") {
+            resistance = raw_resist * 1e3; // Kilo-ohms to ohms
+            valid = true;
+        }
+        else if (unit == "M" || unit == "m") {
+            resistance = raw_resist * 1e6; // Mega-ohms to ohms
+            valid = true;
+        }
+        else if (unit == "O" || unit == "o") {
+            resistance = raw_resist; // Ohms
+            valid = true;
+        }
+        else {
+            std::cerr << "Invalid unit. Please use 'k' for kilo-ohms, 'M' for mega-ohms, or 'O' for ohms.\n";
+            std::cout << "Enter a valid unit: ";
+            std::cin >> unit; // Re-prompt for the unit
+        }
     }
 }
 
@@ -105,7 +115,6 @@ void capacitor_input(double raw_cap, double& capacitance, const std::string& uni
         capacitance = 0;
     }
 }
-
 
 // Function to return to main menu
 void go_back_to_main() {
@@ -611,7 +620,7 @@ void calculate_coff_freq_filter() {
     std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
-    // Get resistance input
+    // Get capacitance input
     if (!validate_positive_input(raw_cap, "Enter the capacitor value: "))
       return;
 
@@ -748,9 +757,9 @@ void menu_item_3() {
 }
 
 // Sallen Key circuit diagram
-void print_sallen_key_diagram(double r, double c, double ra, double rb) {
+void print_sallen_key_diagram() {
     std::cout << R"(
-|---------------------------------General Sallen-Key Filter Circuit Diagram:-----------------------------------|
+|-------------------------------------Sallen-Key Filter Circuit Diagram:---------------------------------------|
 |                                                                                                              |    
 |                                              |-----|                                                         |
 |                                *-------------| Z3  |------------------------------------*                    |
@@ -766,13 +775,13 @@ void print_sallen_key_diagram(double r, double c, double ra, double rb) {
 |     Vin-------------| Z1 | ----*-------------| Z2 |---------*----------|    /            |                   |
 |                     |----|                   |----|         |          |   /             |                   |
 |                                                             |       *--|_ /            |----|                |
-|                                                             |       |  | /             | RA |                |
+|                                                             |       |  | /             | RB |                |
 |                                                             |       |  |/              |----|                |
 |                                                           |-----|   |                    |                   |
 |                                                           | Z4  |   *____________________*                   |
 |                                                           |_____|                        |                   |
 |                                                             |                          |----|                |
-|                                                             |                          | RB |                |
+|                                                             |                          | RA |                |
 |                                                             |                          |____|                |
 |                                                             |                            |                   |
 |                                                             |                            |                   | 
@@ -788,18 +797,31 @@ void print_sallen_key_diagram(double r, double c, double ra, double rb) {
 // Asks the user to input circuit components
 void get_component_values(double& r, double& c, double& ra, double& rb) {
     std::cout << "\nEnter values for Resistors and Capacitors:\n";
-
-    std::cout << "Enter R = R1 = R2 = ";
-    std::cin >> r;
-
+    double raw_resist;
     std::string unit;
+
+   
+    // Get resistance input
+    std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cin >> unit;
+    if (!validate_positive_input(raw_resist, "Enter the resistance of RA : ")) {
+        std::cout << "Please enter a positive integer: ";
+        std::cin >> raw_resist;
+    }
+
+    resistor_input(raw_resist, r, unit);
+    if (r == 0) {
+        std::cerr << "Invalid resistance input.\n";
+        return;
+    }
+
     double raw_cap, resistance = 0;
 
-    std::cout << "\nEnter unit (u for microfarads, n for nanofarads, p for picofarads): ";
+    std::cout << "\nEnter unit for C (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
     // Get resistance input
-    if (!validate_positive_input(raw_cap, "Enter C = C1 = C2  "))
+    if (!validate_positive_input(raw_cap, "Enter the capacitance C = C1 = C2  "))
         return;
 
     capacitor_input(raw_cap, c, unit);
@@ -807,14 +829,24 @@ void get_component_values(double& r, double& c, double& ra, double& rb) {
         std::cerr << " \nInvalid capacitance input.";
         return;
     }
+    // Get resistance input
+    std::cout << "\nEnter unit for RA (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cin >> unit;
+    if (!validate_positive_input(raw_resist, "Enter the resistance of RA : ")) {
+        std::cout << "Please enter a positive integer: ";
+        std::cin >> raw_resist;
+    }
 
-    std::cout << " \n Enter the value for the feedback resistor RA: ";
-    std::cin >> ra;
+    resistor_input(raw_resist, ra, unit);
+    if (ra == 0) {
+        std::cerr << "Invalid resistance input.\n";
+   
+    }
 
 }
 
 //Perform calculations for Butterworth filter
-static void butterworth_filter(int num_poles, float r, float c, float ra, float rb) {
+void butterworth_filter(int num_poles, float r, float c, float ra, float rb) {
     std::cout << "\nPerforming calculations for Butterworth with " << num_poles << " poles...\n";
     press_to_continue();
     std::vector<float> gains;
@@ -856,7 +888,7 @@ static void butterworth_filter(int num_poles, float r, float c, float ra, float 
 }
 
 // Function to fetch gains and factors based on Chebyshev type and poles
-static void chebyshev_filter_data(int num_poles, int type, std::vector<float>& gains, std::vector<float>& factors_low, std::vector<float>& factors_high) {
+void chebyshev_filter_data(int num_poles, int type, std::vector<float>& gains, std::vector<float>& factors_low, std::vector<float>& factors_high) {
 
     if (type == 2) { // 0.5 dB Chebyshev
         // Characteristics for each pole
@@ -978,8 +1010,9 @@ void menu_item_4() {
             get_component_values(r, c, ra, rb);
 
             std::cout << "\nGenerating a Sallen-Key " << filter_type << " filter with " << num_poles << " poles.\n";
-            print_sallen_key_diagram(r, c, ra, rb);
             press_to_continue();
+            print_sallen_key_diagram();
+
 
             // Display filter type submenu
             std::cout << "\n-- Select Filter Type: --\n";
@@ -1006,7 +1039,6 @@ void menu_item_4() {
                 std::cout << "\nInvalid choice. Please restart and select a valid filter type.\n";
                 return;
             }
-            press_to_continue();
             // Display component values
             std::cout << "\nComponent Values:\n";
             if (filter_type == "high") {
@@ -1035,6 +1067,8 @@ void menu_item_4() {
 
     std::cout << "\nReturning to the main menu...\n";
 }
+
+
 
 
 
