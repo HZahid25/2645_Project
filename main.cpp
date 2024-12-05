@@ -83,15 +83,15 @@ void select_menu_item(int input) {
 }
 
 void print_main_menu() {
-  std::cout << "\n--------------- Main menu ---------------\n";
-  std::cout << "|\t\t\t\t\t|\n";
-  std::cout << "|\t1. Resistor Calculator\t\t|\n";
-  std::cout << "|\t2. Op Amp Configurator\t\t|\n";
-  std::cout << "|\t3. Pass Filter Calculator\t|\n";
-  std::cout << "|\t4. Sallen Key Filter  \t\t|\n";
-  std::cout << "|\t5. Exit\t\t\t\t|\n";
-  std::cout << "|\t\t\t\t\t|\n";
-  std::cout << "-----------------------------------------\n";
+    std::cout << "\n------------------- Enginuity -------------------\n";
+    std::cout << "|\t\t\t\t\t\t|\n";
+    std::cout << "|\t1. Resistor Calculator           \t|\n";
+    std::cout << "|\t2. Op Amp Configurator           \t|\n";
+    std::cout << "|\t3. RC Filter Calculator          \t|\n";
+    std::cout << "|\t4. Sallen Key Filter Configurator\t|\n";
+    std::cout << "|\t5. Exit\t\t\t\t\t|\n";
+    std::cout << "|\t\t\t\t\t\t|\n";
+    std::cout << "-------------------------------------------------\n";
 }
 
 // https://codereview.stackexchange.com/questions/162569/checking-if-each-char-in-a-string-is-a-decimal-digit
