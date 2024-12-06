@@ -105,7 +105,7 @@ void Fc_input(double raw_freq, double& frequency, std::string& unit) {
 void capacitor_input(double raw_cap, double& capacitance, std::string& unit) {
     bool valid = false; // Validation flag
     while (!valid) {
-        if (unit == "µ" || unit == "u") { // Microfarads to farads
+        if (unit == "u") { // Microfarads to farads
             capacitance = raw_cap * 1e-6;
             valid = true;
         }
@@ -118,7 +118,7 @@ void capacitor_input(double raw_cap, double& capacitance, std::string& unit) {
             valid = true;
         }
         else {
-            std::cerr << "Invalid unit. Please use µ (microfarads), n (nanofarads), or p (picofarads).\n";
+            std::cerr << "Invalid unit. Please use u (microfarads), n (nanofarads), or p (picofarads).\n";
             std::cout << "Enter a valid unit: ";
             std::cin >> unit; // Re-prompt for unit
         }
@@ -143,18 +143,20 @@ void menu_item_1() {
         std::cout << "1. Calculate resistance from color codes\n";
         std::cout << "2. Solve Resistor Network\n";
         std::cout << "3. Find nearest NPV resistor\n";
-        std::cout << "4. Get NPV value and color code for a resistor\n";
+        std::cout << "4. Get NPV value and color code for a resistor\n";  // New option
         std::cout << "5. Back to main menu\n";
         std::cout << "Select an option: ";
-
         std::cin >> choice;
 
-        // Validate input
-        if (std::cin.fail() || choice < 1 || choice > 5) {
-            std::cin.clear(); // Clear the error flag
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
-            std::cout << "Invalid input. Please enter a number between 1 and 5.\n";
-            continue; // Restart the loop
+        // Blocks invalid input until correct
+        while (std::cin.fail()) {
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+                std::cout << "Enter an integer!\n";
+                std::cin >> choice;
+            }
         }
 
         switch (choice) {
@@ -170,20 +172,19 @@ void menu_item_1() {
         case 4: {
             double resistor_value;
             std::cout << "Enter resistor value (in ohms): ";
-            while (!(std::cin >> resistor_value) || resistor_value <= 0) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Invalid input. Enter a valid positive number: ";
-            }
-            get_npv_and_color_code_for_resistor(resistor_value);
+            std::cin >> resistor_value;
+            get_npv_and_color_code_for_resistor(resistor_value);  // Call the new function
             break;
         }
         case 5:
             std::cout << "Returning to main menu...\n";
             break;
+        default:
+            std::cout << "Invalid option. Try again.\n";
         }
     } while (choice != 5);
 }
+
 void calculate_resistor_from_color_code() {
     // Define color-to-value and multiplier maps
     std::map<std::string, int> color_code = {
@@ -292,7 +293,7 @@ void find_nearest_npv_resistor() {
     10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
     100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
     1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
-    10000000 
+    10000000
     };
 
     double target_resistance;
@@ -392,12 +393,14 @@ void get_npv_and_color_code_for_resistor(double resistance) {
         std::string second_band = digit_to_color[second_digit];
         std::string multiplier_band = multiplier_to_color[magnitude];
 
-    // Outputs the color code of the input resistor
+        // Outputs the color code of the input resistor
         std::cout << "Color Code: [" << first_band << ", " << second_band << ", " << multiplier_band << "]\n";
-    } else {
+    }
+    else {
         std::cout << "Error: Unable to calculate color code for this resistor.\n";
     }
 }
+
 void menu_item_2() {
     int choice;
     double inverting_input_voltage;
@@ -408,19 +411,30 @@ void menu_item_2() {
     double gain;
     std::string repeat_choice, unit;
     do {
-    clearscreen();
-    std::cout << "\n>> The Op-Amp \n";
+        clearscreen();
+        std::cout << "\n>> The Op-Amp \n";
 
-    // Display a sub-menu for selecting the op-amp configuration
-    std::cout << "\nOp-Amp Configuration:\n";
-    std::cout << "1. Inverting Op-Amp\n";
-    std::cout << "2. Non-Inverting Op-Amp\n";
-    std::cout << "3. Back to main menu\n";
-    std::cout << "Select choice: ";
-    std::cin >> choice;
+        // Display a sub-menu for selecting the op-amp configuration
+        std::cout << "\nOp-Amp Configuration:\n";
+        std::cout << "1. Inverting Op-Amp\n";
+        std::cout << "2. Non-Inverting Op-Amp\n";
+        std::cout << "3. Back to main menu\n";
+        std::cout << "Select choice: ";
+        std::cin >> choice;
 
-            double raw_resist;
-            std::string unit;
+        // Blocks invalid input until correct
+        while (std::cin.fail()) {
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+                std::cout << "Enter an integer!\n";
+                std::cin >> choice;
+            }
+        }
+
+        double raw_resist;
+        std::string unit;
 
         // Perform calculations based on the user's choice
         if (choice == 1) {
@@ -446,8 +460,6 @@ void menu_item_2() {
                 std::cout << "Invalid input. Please enter a numeric value for the inverting input voltage: ";
             }
 
-
-
             // Get resistance input
             std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
             std::cin >> unit;
@@ -461,11 +473,14 @@ void menu_item_2() {
                 return;
             }
 
+            // Get resistance input
+            std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+            std::cin >> unit;
             if (!validate_positive_input(input_resistor, "Enter the input resistor value (ohms): ")) {
                 std::cout << "Please enter a positive integer: ";
                 std::cin >> raw_resist;
             }
-            resistor_input(raw_resist, feedback_resistor, unit);
+            resistor_input(raw_resist, input_resistor, unit);
             if (input_resistor <= 0) {
                 std::cerr << "Invalid resistance input.\n";
                 return;
@@ -523,10 +538,32 @@ void menu_item_2() {
             // Validate each input
             if (!validate_positive_input(non_inverting_input_voltage, "Enter the non-inverting input voltage (volts): "))
                 return;
-            if (!validate_positive_input(feedback_resistor, "Enter the feedback resistor value (ohms): "))
+            // Get resistance input
+            std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+            std::cin >> unit;
+            if (!validate_positive_input(raw_resist, "Enter the feedback resistor value (ohms): ")) {
+                std::cout << "Please enter a positive integer: ";
+                std::cin >> raw_resist;
+            }
+            resistor_input(raw_resist, feedback_resistor, unit);
+            if (feedback_resistor <= 0) {
+                std::cerr << "Invalid resistance input.\n";
                 return;
-            if (!validate_positive_input(ground_resistor, "Enter the ground resistor value (ohms): "))
+            }
+
+            // Get resistance input
+            std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+            std::cin >> unit;
+            if (!validate_positive_input(ground_resistor, "Enter the ground resistor value (ohms): ")) {
+                std::cout << "Please enter a positive integer: ";
+                std::cin >> raw_resist;
+            }
+            resistor_input(raw_resist, ground_resistor, unit);
+            if (input_resistor <= 0) {
+                std::cerr << "Invalid resistance input.\n";
                 return;
+            }
+
 
             gain = 1 + (feedback_resistor / ground_resistor);
             float output_voltage = gain * non_inverting_input_voltage;
@@ -586,7 +623,7 @@ void calculate_res_filter() {
         std::cerr << "Invalid input.\n";
         return;
     }
-    
+
     resistance_needed = 1 / (2 * 3.14 * capacitance * frequency);
     if (resistance_needed > 1e3) {
         resistance_needed = resistance_needed / 1e3;
@@ -596,7 +633,7 @@ void calculate_res_filter() {
         resistance_needed = resistance_needed / 1e6;
         unit = "MOhms";
     }
-    else{
+    else {
         resistance_needed;
         unit = "Ohms";
     }
@@ -662,12 +699,12 @@ void calculate_coff_freq_filter() {
 
     // Get capacitance input
     if (!validate_positive_input(raw_cap, "Enter the capacitor value: "))
-      return;
+        return;
 
     capacitor_input(raw_cap, capacitance, unit);
     if (capacitance == 0) {
-       std::cerr << "Invalid input.\n";
-       return;
+        std::cerr << "Invalid input.\n";
+        return;
     }
 
     std::cout << "Enter unit (k for kilo-ohms, M for mega-ohms, O for ohms): ";
@@ -703,6 +740,18 @@ void lowpassfilter() {
         std::cout << "4. Back to Filter Menu\n";
         std::cout << "Select an option: ";
         std::cin >> choice;
+
+        // Blocks invalid input until correct
+        while (std::cin.fail()) {
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+                std::cout << "Enter an integer!\n";
+                std::cin >> choice;
+            }
+        }
+
         switch (choice) {
         case 1:
             calculate_res_filter();
@@ -739,6 +788,18 @@ void highpassfilter() {
         std::cout << "4. Back to Filter Menu\n";
         std::cout << "Select an option: ";
         std::cin >> choice;
+
+        // Blocks invalid input until correct
+        while (std::cin.fail()) {
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+                std::cout << "Enter an integer!\n";
+                std::cin >> choice;
+            }
+        }
+
         switch (choice) {
         case 1:
             calculate_res_filter();
@@ -771,12 +832,15 @@ void menu_item_3() {
         std::cout << "Select an option: ";
         std::cin >> choice;
 
-        // Check for invalid input
-        if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
-            std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
-            return; 
+        // Blocks invalid input until correct
+        while (std::cin.fail()) {
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+                std::cout << "Enter an integer!\n";
+                std::cin >> choice;
+            }
         }
 
         switch (choice) {
@@ -840,7 +904,7 @@ void get_component_values(double& r, double& c, double& ra, double& rb) {
     double raw_resist, raw_cap;
     std::string unit;
 
-   
+
     // Get resistance input
     std::cout << "Enter unit for R (k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
@@ -1052,6 +1116,17 @@ void menu_item_4() {
             std::cout << "Select choice: ";
             std::cin >> choice;
 
+            // Blocks invalid input until correct
+            while (std::cin.fail()) {
+                if (std::cin.fail()) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
+                    std::cout << "Enter an integer!\n";
+                    std::cin >> choice;
+                }
+            }
+
             if (choice == 1) { // Butterworth
                 butterworth_filter(num_poles, r, c, ra, rb);
             }
@@ -1064,10 +1139,7 @@ void menu_item_4() {
             else if (choice == 4) { // Back to main menu
                 return;
             }
-            else {
-                std::cout << "\nInvalid choice. Please restart and select a valid filter type.\n";
-                return;
-            }
+
             // Display component values
             std::cout << "\nComponent Values:\n";
             if (filter_type == "high") {
@@ -1096,6 +1168,8 @@ void menu_item_4() {
 
     std::cout << "\nReturning to the main menu...\n";
 }
+
+
 
 
 
