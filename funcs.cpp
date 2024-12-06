@@ -14,13 +14,17 @@ void press_to_continue() {
     std::cin.get();
 }
 
-// Function that clears the screen 
+// Function that clears the screen
 void clearscreen() {
 #ifdef _WIN32
-    system("cls");
-#endif // !Win32
-
+    system("cls");  // For Windows
+#elif __APPLE__
+    system("clear");  // For MacOS
+#else
+    system("clear");  // For Linux 
+#endif
 }
+
 
 // Function that only allows a positive input
 bool validate_positive_input(double& value, const std::string& prompt) {
