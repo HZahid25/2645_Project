@@ -6,7 +6,6 @@
 #include <cmath>
 #include "funcs.h"
 #include <algorithm> // For std::transform
-#include "funcs.h"
 
 
 void press_to_continue() {
