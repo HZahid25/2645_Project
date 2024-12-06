@@ -143,10 +143,19 @@ void menu_item_1() {
         std::cout << "1. Calculate resistance from color codes\n";
         std::cout << "2. Solve Resistor Network\n";
         std::cout << "3. Find nearest NPV resistor\n";
-        std::cout << "4. Get NPV value and color code for a resistor\n";  // New option
+        std::cout << "4. Get NPV value and color code for a resistor\n";
         std::cout << "5. Back to main menu\n";
         std::cout << "Select an option: ";
+
         std::cin >> choice;
+
+        // Validate input
+        if (std::cin.fail() || choice < 1 || choice > 5) {
+            std::cin.clear(); // Clear the error flag
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+            std::cout << "Invalid input. Please enter a number between 1 and 5.\n";
+            continue; // Restart the loop
+        }
 
         switch (choice) {
         case 1:
@@ -161,19 +170,20 @@ void menu_item_1() {
         case 4: {
             double resistor_value;
             std::cout << "Enter resistor value (in ohms): ";
-            std::cin >> resistor_value;
-            get_npv_and_color_code_for_resistor(resistor_value);  // Call the new function
+            while (!(std::cin >> resistor_value) || resistor_value <= 0) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Invalid input. Enter a valid positive number: ";
+            }
+            get_npv_and_color_code_for_resistor(resistor_value);
             break;
         }
         case 5:
             std::cout << "Returning to main menu...\n";
             break;
-        default:
-            std::cout << "Invalid option. Try again.\n";
         }
     } while (choice != 5);
 }
-
 void calculate_resistor_from_color_code() {
     // Define color-to-value and multiplier maps
     std::map<std::string, int> color_code = {
@@ -388,7 +398,6 @@ void get_npv_and_color_code_for_resistor(double resistance) {
         std::cout << "Error: Unable to calculate color code for this resistor.\n";
     }
 }
-
 void menu_item_2() {
     int choice;
     double inverting_input_voltage;
