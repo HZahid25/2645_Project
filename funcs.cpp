@@ -596,11 +596,11 @@ void menu_item_2() {
 }
 
 void calculate_res_filter() {
-
+clearscreen();
     float  resistance_needed;
     double raw_cap, raw_freq, frequency = 0, capacitance = 0;
     std::string unit;
-
+    std::cout <<"--- Resistor Calculator ---\n";
     std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
@@ -645,10 +645,11 @@ void calculate_res_filter() {
 }
 
 void calculate_cap_filter() {
+    clearscreen();
     float  capacitance_needed;
     double raw_freq, raw_resist, resistance = 0, frequency = 0;
     std::string unit;
-
+    std::cout <<"--- Capacitor Calculator ---\n";
     std::cout << "Enter unit (k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
 
@@ -693,10 +694,11 @@ void calculate_cap_filter() {
 }
 
 void calculate_coff_freq_filter() {
+    clearscreen();
     double raw_cap, raw_resist, resistance = 0, capacitance = 0;
     std::string unit;
     float cutoff_frequency;
-
+    std::cout <<"--- Cutoff Frequency Calculator ---\n";
     std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
