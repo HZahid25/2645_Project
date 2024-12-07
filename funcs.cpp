@@ -562,7 +562,7 @@ void menu_item_2() {
                 std::cin >> raw_resist;
             }
             resistor_input(raw_resist, ground_resistor, unit);
-            if (input_resistor <= 0) {
+            if (ground_resistor <= 0) {
                 std::cerr << "Invalid resistance input.\n";
                 return;
             }
