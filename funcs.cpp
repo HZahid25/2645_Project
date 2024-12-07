@@ -601,7 +601,7 @@ clearscreen();
     double raw_cap, raw_freq, frequency = 0, capacitance = 0;
     std::string unit;
     std::cout <<"--- Resistor Calculator ---\n";
-    std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
+    std::cout << "Enter unit for the capacitance (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
     // Get resistance input
@@ -614,7 +614,7 @@ clearscreen();
         return;
     }
 
-    std::cout << "Enter unit (k for Kilo Hz, M for Mega Hz, H for Hz): ";
+    std::cout << "Enter unit for the cutoff frequency(k for Kilo Hz, M for Mega Hz, H for Hz): ";
     std::cin >> unit;
 
     // Get resistance input
@@ -650,7 +650,7 @@ void calculate_cap_filter() {
     double raw_freq, raw_resist, resistance = 0, frequency = 0;
     std::string unit;
     std::cout <<"--- Capacitor Calculator ---\n";
-    std::cout << "Enter unit (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cout << "Enter unit for the resistance (k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
 
     // Get resistance input
@@ -663,7 +663,7 @@ void calculate_cap_filter() {
         return;
     }
 
-    std::cout << "Enter unit (k for Kilo Hz, M for Mega Hz, H for Hz): ";
+    std::cout << "Enter unit for the cutoff frequency (k for Kilo Hz, M for Mega Hz, H for Hz): ";
     std::cin >> unit;
 
     // Get resistance input
@@ -699,7 +699,7 @@ void calculate_coff_freq_filter() {
     std::string unit;
     float cutoff_frequency;
     std::cout <<"--- Cutoff Frequency Calculator ---\n";
-    std::cout << "Enter unit (u for microfarads, n for nanofarads, p for picofarads): ";
+    std::cout << "Enter unit for the capacitance (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
     // Get capacitance input
@@ -712,7 +712,7 @@ void calculate_coff_freq_filter() {
         return;
     }
 
-    std::cout << "Enter unit (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cout << "Enter unit for the resistance(k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
 
     // Get resistance input
