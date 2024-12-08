@@ -967,11 +967,12 @@ void get_component_values(double& r, double& c, double& ra, double& rb) {
 
 }
 
-//Perform calculations for Butterworth filter
-void butterworth_filter(int num_poles, float r, float c, float ra, float rb) {
-    std::cout << "\nPerforming calculations for Butterworth with " << num_poles << " poles...\n";
+// Butterworth filter calculator
+void butterworth_filter(int num_poles, double r, double c, double ra, double rb, int pole_pair_index) {
+    std::cout << "\nPerforming calculations for Butterworth with " << num_poles << " poles, Pole Pair " << pole_pair_index << "...\n";
     press_to_continue();
-    std::vector<float> gains;
+
+    std::vector<double> gains;
     if (num_poles == 2) {
         gains = { 1.586 };
     }
@@ -981,32 +982,29 @@ void butterworth_filter(int num_poles, float r, float c, float ra, float rb) {
     else if (num_poles == 6) {
         gains = { 1.068, 1.586, 2.483 };
     }
-    for (size_t stage = 0; stage < gains.size(); ++stage) {
-        std::cout << "Stage " << stage + 1 << ":\n";
 
-        // Extract gain for this stage
-        float gain = gains[stage];
-        std::cout << "The filter gain is " << gain << '\n';
+    double gain = gains[pole_pair_index - 1]; // Adjust for zero-based index
+    std::cout << "The filter gain for Pole Pair " << pole_pair_index << " is " << gain << '\n';
 
-        // Ensure gain is valid for calculation
-        if (gain <= 1.0) {
-            std::cerr << "Invalid gain value (" << gain << "). Must be greater than 1.\n";
-            continue; // Skip this stage if gain is invalid
-        }
-
-        // Calculate rb using ra and gain
-        ra = rb * (gain - 1);
-
-        std::cout << "\nResistor RA: " << ra << "\n";
-        get_npv_and_color_code_for_resistor(ra);
-
-        std::cout << "\nResistor RB: " << rb << " \n";
-        get_npv_and_color_code_for_resistor(rb);
-
-        // Calculate and display the cutoff frequency
-        float cutoff_freq = calculate_cutoff_frequency(r, c);
-        display_cutoff_frequency(cutoff_freq);
+    // Ensure gain is valid for calculation
+    if (gain <= 1.0) {
+        std::cerr << "Invalid gain value (" << gain << "). Must be greater than 1.\n";
+        return;
     }
+
+    // Calculate `ra` using `rb` and gain
+    ra = rb * (gain - 1);
+
+    // Display component values
+    std::cout << "\nResistor RA: " << ra << "\n";
+    get_npv_and_color_code_for_resistor(ra);
+
+    std::cout << "\nResistor RB: " << rb << " \n";
+    get_npv_and_color_code_for_resistor(rb);
+
+    // Calculate and display the cutoff frequency for this pole pair
+    double cutoff_freq = calculate_cutoff_frequency(r, c);
+    display_cutoff_frequency(cutoff_freq);
 }
 
 // Function to fetch gains and factors based on Chebyshev type and poles
@@ -1049,46 +1047,43 @@ void chebyshev_filter_data(int num_poles, int type, std::vector<float>& gains, s
     }
 }
 
-// Perform calculations for Chebyshev filters
-void chebyshev_filter(int num_poles, int type, const std::string& filter_type, float r, float c, float ra, float rb) {
+// Chebyshev filter calculator
+void chebyshev_filter(int num_poles, int type, const std::string& filter_type, double r, double c, double ra, double rb, int pole_pair_index) {
     std::vector<float> gains, factors_low, factors_high;
 
-    // Fetch appropriate gains and cutoff factors
+    // Fetch appropriate gains and cutoff factors based on the filter type and number of poles
     chebyshev_filter_data(num_poles, type, gains, factors_low, factors_high);
 
     // Determine the factors based on filter type (low-pass or high-pass)
     std::vector<float> factors = (filter_type == "low") ? factors_low : factors_high;
-    std::cout << "\nPerforming calculations for Butterworth with " << num_poles << " poles...\n";
+    std::cout << "\nPerforming calculations for Chebyshev with " << num_poles << " poles, Pole Pair " << pole_pair_index << "...\n";
     press_to_continue();
-    for (size_t stage = 0; stage < gains.size(); ++stage) {
-        std::cout << "Stage " << stage + 1 << ":\n";
 
-        // Extract gain for this stage
-        float gain = gains[stage];
-        std::cout << "The filter gain is " << gain << '\n';
+    double gain = gains[pole_pair_index - 1]; // Adjust for zero-based index
+    std::cout << "The filter gain for Pole Pair " << pole_pair_index << " is " << gain << '\n';
 
-        // Ensure gain is valid for calculation
-        if (gain <= 1.0) {
-            std::cerr << "Invalid gain value (" << gain << "). Must be greater than 1.\n";
-            continue; // Skip this stage if gain is invalid
-        }
-
-        // Calculate rb using ra and gain
-        ra = rb * (gain - 1);
-
-        std::cout << "\nResistor RA: " << ra << "\n";
-        get_npv_and_color_code_for_resistor(ra);
-
-        std::cout << "\nResistor RB: " << rb << " \n";
-        get_npv_and_color_code_for_resistor(rb);
-
-        // Calculate and display the cutoff frequency
-        float cutoff_freq = calculate_cutoff_frequency(r, c);
-        display_cutoff_frequency(cutoff_freq);
+    // Ensure gain is valid for calculation
+    if (gain <= 1.0) {
+        std::cerr << "Invalid gain value (" << gain << "). Must be greater than 1.\n";
+        return;
     }
 
+    // Calculate `ra` using `rb` and gain
+    ra = rb * (gain - 1);
+
+    // Display component values for this pole pair
+    std::cout << "\nResistor RA: " << ra << "\n";
+    get_npv_and_color_code_for_resistor(ra);
+
+    std::cout << "\nResistor RB: " << rb << " \n";
+    get_npv_and_color_code_for_resistor(rb);
+
+    // Calculate and display the cutoff frequency for this pole pair
+    double cutoff_freq = calculate_cutoff_frequency(r * factors_low[pole_pair_index - 1], c * factors_high[pole_pair_index - 1]);
+    display_cutoff_frequency(cutoff_freq);
 }
 
+// Menu item 4
 void menu_item_4() {
     int choice = 0;
     std::string filter_type, repeat_choice;
@@ -1098,9 +1093,26 @@ void menu_item_4() {
         clearscreen();
         std::cout << "\n>> Menu 4: Sallen-Key Filter Configuration\n";
 
+        // Display filter type submenu
+        std::cout << "\n-- Select Filter Type: --\n";
+        std::cout << "1. Butterworth\n";
+        std::cout << "2. 0.5 dB Chebyshev\n";
+        std::cout << "3. 2 dB Chebyshev\n";
+        std::cout << "4. Back to main menu\n";
+        std::cout << "Select choice: ";
+        std::cin >> choice;
+      // Validate choice
+        while (std::cin.fail() || choice < 1 || choice > 4) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between 1 and 4: ";
+            std::cin >> choice;
+        }
+
+
         // User input for the number of poles
         int num_poles;
-        std::cout << "Enter the number of poles (2, 4, or 6): ";
+        std::cout << "\n Enter the number of poles (2, 4, or 6): ";
         std::cin >> num_poles;
 
         if (num_poles != 2 && num_poles != 4 && num_poles != 6) {
@@ -1120,73 +1132,53 @@ void menu_item_4() {
             return;
         }
 
+
+  
+        // Number of pole pairs
         int diagram_count = num_poles / 2;
 
         // Loop through each pole pair
         for (int i = 0; i < diagram_count; ++i) {
-            std::cout << "\nPole Pair " << (i + 1) << ":\n";
+            std::cout << "\n--- Configuration for Pole Pair " << (i + 1) << " ---\n";
 
-            std::cout << "\n--- Filter Configuration ---\n";
-
-            // Get user inputs for circuit components
+            double r = 0, c = 0, ra = 0, rb = 0;
+            std::cout << "\nEnter component values for Pole Pair " << (i + 1) << ":\n";
             get_component_values(r, c, ra, rb);
 
-            std::cout << "\nGenerating a Sallen-Key " << filter_type << " filter with " << num_poles << " poles.\n";
-            press_to_continue();
+            // Display the Sallen-Key diagram
+            std::cout << "\nGenerating a Sallen-Key " << filter_type << " filter diagram...\n";
             print_sallen_key_diagram();
 
-
-            // Display filter type submenu
-            std::cout << "\n-- Select Filter Type: --\n";
-            std::cout << "1. Butterworth\n";
-            std::cout << "2. 0.5 dB Chebyshev\n";
-            std::cout << "3. 2 dB Chebyshev\n";
-            std::cout << "4. Back to main menu\n";
-            std::cout << "Select choice: ";
-            std::cin >> choice;
-
-            // Blocks invalid input until correct
-            while (std::cin.fail()) {
-                if (std::cin.fail()) {
-                    std::cin.clear();
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
-                    std::cout << "Enter an integer!\n";
-                    std::cin >> choice;
-                }
-            }
-
+            // Call the selected filter function with current pole pair data
             if (choice == 1) { // Butterworth
-                butterworth_filter(num_poles, r, c, ra, rb);
+                butterworth_filter(num_poles, r, c, ra, rb, i + 1); // Pass pole pair index (i + 1)
             }
             else if (choice == 2) { // 0.5 dB Chebyshev
-                chebyshev_filter(num_poles, 2, filter_type, r, c, ra, rb);
+                chebyshev_filter(num_poles, 2, filter_type, r, c, ra, rb, i + 1); // Pass pole pair index (i + 1)
             }
             else if (choice == 3) { // 2 dB Chebyshev
-                chebyshev_filter(num_poles, 3, filter_type, r, c, ra, rb);
-            }
-            else if (choice == 4) { // Back to main menu
-                return;
+                chebyshev_filter(num_poles, 3, filter_type, r, c, ra, rb, i + 1); // Pass pole pair index (i + 1)
             }
 
-            // Display component values
-            std::cout << "\nComponent Values:\n";
             if (filter_type == "high") {
-                std::cout << "  Z1 = C1 = " << c << " farads\n";
+                std::cout << "\n  Z1 = C1 = " << c << " farads\n";
                 std::cout << "  Z2 = C2 = " << c << " farads\n";
                 std::cout << "  Z3 = R1 = " << r << " ohms\n";
                 std::cout << "  Z4 = R2 = " << r << " ohms\n";
             }
-            else { // low-pass
-                std::cout << "  Z1 = R1 = " << r << " ohms\n";
+            else { // Low-pass filter
+                std::cout << "\n  Z1 = R1 = " << r << " ohms\n";
                 std::cout << "  Z2 = R2 = " << r << " ohms\n";
                 std::cout << "  Z3 = C1 = " << c << " farads\n";
                 std::cout << "  Z4 = C2 = " << c << " farads\n";
             }
-            // Display resistor color codes
+
+            // Display the resistor color codes for R1 & R2
             std::cout << "\nResistor R1 & R2:\n";
             get_npv_and_color_code_for_resistor(r);
 
+            // Separator for clarity
+            std::cout << "\n----------------------------\n";
         }
 
         // Prompt to repeat or exit
