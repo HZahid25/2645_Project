@@ -596,11 +596,11 @@ void menu_item_2() {
 }
 
 void calculate_res_filter() {
-clearscreen();
+    clearscreen();
     float  resistance_needed;
     double raw_cap, raw_freq, frequency = 0, capacitance = 0;
     std::string unit;
-    std::cout <<"--- Resistor Calculator ---\n";
+    std::cout << "--- Resistor Calculator ---\n";
     std::cout << "Enter unit for the capacitance (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
@@ -649,7 +649,7 @@ void calculate_cap_filter() {
     float  capacitance_needed;
     double raw_freq, raw_resist, resistance = 0, frequency = 0;
     std::string unit;
-    std::cout <<"--- Capacitor Calculator ---\n";
+    std::cout << "--- Capacitor Calculator ---\n";
     std::cout << "Enter unit for the resistance (k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
 
@@ -698,7 +698,7 @@ void calculate_coff_freq_filter() {
     double raw_cap, raw_resist, resistance = 0, capacitance = 0;
     std::string unit;
     float cutoff_frequency;
-    std::cout <<"--- Cutoff Frequency Calculator ---\n";
+    std::cout << "--- Cutoff Frequency Calculator ---\n";
     std::cout << "Enter unit for the capacitance (u for microfarads, n for nanofarads, p for picofarads): ";
     std::cin >> unit;
 
@@ -884,13 +884,13 @@ void print_sallen_key_diagram() {
 |     Vin-------------| Z1 | ----*-------------| Z2 |---------*----------|    /            |                   |
 |                     |----|                   |----|         |          |   /             |                   |
 |                                                             |       *--|_ /            |----|                |
-|                                                             |       |  | /             | RB |                |
+|                                                             |       |  | /             | RA |                |
 |                                                             |       |  |/              |----|                |
 |                                                           |-----|   |                    |                   |
 |                                                           | Z4  |   *____________________*                   |
 |                                                           |_____|                        |                   |
 |                                                             |                          |----|                |
-|                                                             |                          | RA |                |
+|                                                             |                          | RB |                |
 |                                                             |                          |____|                |
 |                                                             |                            |                   |
 |                                                             |                            |                   | 
@@ -932,13 +932,13 @@ void get_component_values(double& r, double& c, double& ra, double& rb) {
         return;
     }
     // Get resistance input
-    std::cout << "\nEnter unit for RA (k for kilo-ohms, M for mega-ohms, O for ohms): ";
+    std::cout << "\nEnter unit for RB (k for kilo-ohms, M for mega-ohms, O for ohms): ";
     std::cin >> unit;
-    if (!validate_positive_input(raw_resist, "Enter the resistance of RA : ")) {
+    if (!validate_positive_input(raw_resist, "Enter the resistance of RB : ")) {
         std::cout << "Please enter a positive integer: ";
         std::cin >> raw_resist;
     }
-    resistor_input(raw_resist, ra, unit);
+    resistor_input(raw_resist, rb, unit);
 
 
 }
@@ -971,7 +971,7 @@ void butterworth_filter(int num_poles, float r, float c, float ra, float rb) {
         }
 
         // Calculate rb using ra and gain
-        rb = ra * (gain - 1);
+        ra = rb * (gain - 1);
 
         std::cout << "\nResistor RA: " << ra << "\n";
         get_npv_and_color_code_for_resistor(ra);
@@ -1050,7 +1050,7 @@ void chebyshev_filter(int num_poles, int type, const std::string& filter_type, f
         }
 
         // Calculate rb using ra and gain
-        rb = ra * (gain - 1);
+        ra = rb * (gain - 1);
 
         std::cout << "\nResistor RA: " << ra << "\n";
         get_npv_and_color_code_for_resistor(ra);
@@ -1173,8 +1173,5 @@ void menu_item_4() {
 
     std::cout << "\nReturning to the main menu...\n";
 }
-
-
-
 
 
