@@ -138,19 +138,12 @@ void go_back_to_main() {
     } while (input != "b" && input != "B");
 }
 
-void clearScreen() {
-#ifdef _WIN32
-    system("CLS");
-#else
-    system("clear");
-#endif
-}
 
 
 void menu_item_1() {
     int choice;
     do {
-        clearScreen();  // Clear the screen at the start of the menu
+        clearscreen();  // Clear the screen at the start of the menu
         std::cout << "\n--- Resistor Calculator ---\n";
         std::cout << "1. Calculate resistance from color codes\n";
         std::cout << "2. Solve Resistor Network\n";
@@ -170,19 +163,19 @@ void menu_item_1() {
 
         switch (choice) {
             case 1:
-                clearScreen();
+                clearscreen();
                 calculate_resistor_from_color_code();
                 break;
             case 2:
-                clearScreen();
+                clearscreen();
                 combine_resistors();
                 break;
             case 3:
-                clearScreen();
+                clearscreen();
                 find_nearest_npv_resistor();
                 break;
             case 4: {
-                clearScreen();
+                clearscreen();
                 double resistor_value;
                 std::cout << "Enter resistor value (in ohms): ";
                 std::cin >> resistor_value;
@@ -190,7 +183,7 @@ void menu_item_1() {
                 break;
             }
             case 5:
-                clearScreen();
+                clearscreen();
                 std::cout << "Returning to main menu...\n";
                 break;
             default:
