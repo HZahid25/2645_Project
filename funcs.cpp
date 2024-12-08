@@ -138,52 +138,69 @@ void go_back_to_main() {
     } while (input != "b" && input != "B");
 }
 
+void clearScreen() {
+#ifdef _WIN32
+    system("CLS");
+#else
+    system("clear");
+#endif
+}
+
+
 void menu_item_1() {
-    clearscreen();
     int choice;
     do {
+        clearScreen();  // Clear the screen at the start of the menu
         std::cout << "\n--- Resistor Calculator ---\n";
         std::cout << "1. Calculate resistance from color codes\n";
         std::cout << "2. Solve Resistor Network\n";
         std::cout << "3. Find nearest NPV resistor\n";
-        std::cout << "4. Get NPV value and color code for a resistor\n";  // New option
+        std::cout << "4. Get NPV value and color code for a resistor\n";
         std::cout << "5. Back to main menu\n";
         std::cout << "Select an option: ";
         std::cin >> choice;
 
-        // Blocks invalid input until correct
+        // Block invalid input until correct
         while (std::cin.fail()) {
-            if (std::cin.fail()) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cout << "Invalid input. Please enter a number between 1 and 3.\n";
-                std::cout << "Enter an integer!\n";
-                std::cin >> choice;
-            }
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Invalid input. Please enter a number between 1 and 5: ";
+            std::cin >> choice;
         }
 
         switch (choice) {
-        case 1:
-            calculate_resistor_from_color_code();
-            break;
-        case 2:
-            combine_resistors();
-            break;
-        case 3:
-            find_nearest_npv_resistor();
-            break;
-        case 4: {
-            double resistor_value;
-            std::cout << "Enter resistor value (in ohms): ";
-            std::cin >> resistor_value;
-            get_npv_and_color_code_for_resistor(resistor_value);  // Call the new function
-            break;
+            case 1:
+                clearScreen();
+                calculate_resistor_from_color_code();
+                break;
+            case 2:
+                clearScreen();
+                combine_resistors();
+                break;
+            case 3:
+                clearScreen();
+                find_nearest_npv_resistor();
+                break;
+            case 4: {
+                clearScreen();
+                double resistor_value;
+                std::cout << "Enter resistor value (in ohms): ";
+                std::cin >> resistor_value;
+                get_npv_and_color_code_for_resistor(resistor_value);
+                break;
+            }
+            case 5:
+                clearScreen();
+                std::cout << "Returning to main menu...\n";
+                break;
+            default:
+                std::cout << "Invalid option. Try again.\n";
         }
-        case 5:
-            std::cout << "Returning to main menu...\n";
-            break;
-        default:
-            std::cout << "Invalid option. Try again.\n";
+
+        if (choice != 5) {
+            std::cout << "\nPress Enter to continue...";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.get();
         }
     } while (choice != 5);
 }
