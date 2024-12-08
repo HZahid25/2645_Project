@@ -363,8 +363,7 @@ void find_nearest_npv_resistor() {
 
 void get_npv_and_color_code_for_resistor(double resistance) {
 
-    clearscreen();  // Clear the screen at the beginning of the function
-
+   
     std::vector<double> npv_resistors = {
         1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
         10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
@@ -413,7 +412,7 @@ void get_npv_and_color_code_for_resistor(double resistance) {
     int first_digit = static_cast<int>(normalized_value);
     int second_digit = static_cast<int>((normalized_value - first_digit) * 10);
 
-    clearscreen();  // Clear the screen before displaying the color code
+  
 
     if (digit_to_color.find(first_digit) != digit_to_color.end() &&
         digit_to_color.find(second_digit) != digit_to_color.end() &&
@@ -1198,5 +1197,3 @@ void menu_item_4() {
 
     std::cout << "\nReturning to the main menu...\n";
 }
-
-
