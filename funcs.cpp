@@ -206,6 +206,8 @@ void menu_item_1() {
 }
 
 void calculate_resistor_from_color_code() {
+    clearscreen();  // Clear screen at the beginning of the function
+
     // Define color-to-value and multiplier maps
     std::map<std::string, int> color_code = {
         {"black", 0}, {"brown", 1}, {"red", 2}, {"orange", 3}, {"yellow", 4},
@@ -219,9 +221,10 @@ void calculate_resistor_from_color_code() {
     // Helper lambda to convert a string to lowercase
     auto to_lower = [](std::string& str) {
         std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-        };
+    };
 
     std::string band1, band2, multiplier;
+    
     std::cout << "Enter first color band: ";
     std::cin >> band1;
     to_lower(band1); // Convert to lowercase
@@ -243,10 +246,16 @@ void calculate_resistor_from_color_code() {
     // Calculate the resistance
     int significant_digits = color_code[band1] * 10 + color_code[band2];
     double resistance = significant_digits * multipliers[multiplier];
+    
+    clearscreen();  // Clear screen before displaying the result
+
     std::cout << "Resistance: " << resistance << " ohms\n";
 }
 
+
 void combine_resistors() {
+    clearscreen();  // Clear the screen at the beginning of the function
+
     int num_series, num_parallel;
 
     // Input for series resistors
@@ -283,6 +292,8 @@ void combine_resistors() {
     double total_parallel_resistance = 1 / total_inverse_parallel;
     std::cout << "Total resistance of resistors in parallel: " << total_parallel_resistance << " ohms\n";
 
+    clearscreen();  // Clear screen before showing the final combination
+
     // Combine the two results
     int combination_type;
     std::cout << "Enter 1 to combine the series and parallel resistances in series, or 2 to combine them in parallel: ";
@@ -305,15 +316,17 @@ void combine_resistors() {
 }
 
 void find_nearest_npv_resistor() {
+    clearscreen();  // Clear the screen at the beginning of the function
+
     std::vector<double> npv_resistors = {
-    1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
-    10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
-    100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
-    1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
-    10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
-    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
-    1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
-    10000000
+        1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
+        10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
+        100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
+        1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
+        10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
+        100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
+        1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000,
+        10000000
     };
 
     double target_resistance;
@@ -340,6 +353,7 @@ void find_nearest_npv_resistor() {
 
     // Suggest combination if exact match is not found
     if (closest_resistor != target_resistance) {
+        clearscreen();  // Clear screen before suggesting combinations
         std::cout << "Suggested combinations: \n";
         for (double r1 : npv_resistors) {
             for (double r2 : npv_resistors) {
@@ -352,10 +366,11 @@ void find_nearest_npv_resistor() {
             }
         }
     }
-
 }
 
 void get_npv_and_color_code_for_resistor(double resistance) {
+
+    clearscreen();  // Clear the screen at the beginning of the function
 
     std::vector<double> npv_resistors = {
         1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2,
@@ -391,7 +406,6 @@ void get_npv_and_color_code_for_resistor(double resistance) {
         }
     }
 
-    // Outputs the NPV resistor
     std::cout << "Nearest NPV resistor: " << closest_resistor << " ohms\n";
 
     // Calculate color code
@@ -405,6 +419,8 @@ void get_npv_and_color_code_for_resistor(double resistance) {
 
     int first_digit = static_cast<int>(normalized_value);
     int second_digit = static_cast<int>((normalized_value - first_digit) * 10);
+
+    clearscreen();  // Clear the screen before displaying the color code
 
     if (digit_to_color.find(first_digit) != digit_to_color.end() &&
         digit_to_color.find(second_digit) != digit_to_color.end() &&
@@ -420,7 +436,6 @@ void get_npv_and_color_code_for_resistor(double resistance) {
         std::cout << "Error: Unable to calculate color code for this resistor.\n";
     }
 }
-
 void menu_item_2() {
     int choice;
     double inverting_input_voltage;
