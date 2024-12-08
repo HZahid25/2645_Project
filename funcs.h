@@ -34,9 +34,9 @@ void highpassfilter();
 //Menu item 4 functions
 void print_sallen_key_diagram();
 void get_component_values(double& r, double& c, double& ra, double& rb);
-void butterworth_filter(int num_poles, float r, float c, float ra, float rb);
+void butterworth_filter(int num_poles, double r, double c, double ra, double rb, int pole_pair_index);
 void chebyshev_filter_data(int num_poles, int type, std::vector<float>& gains, std::vector<float>& factors_low, std::vector<float>& factors_high);
-void chebyshev_filter(int num_poles, int type, const std::string& filter_type, float r, float c, float ra, float rb);
+void chebyshev_filter(int num_poles, int type, const std::string& filter_type, double r, double c, double ra, double rb, int pole_pair_index);
 
 #endif
 
