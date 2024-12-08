@@ -39,3 +39,4 @@ void chebyshev_filter_data(int num_poles, int type, std::vector<float>& gains, s
 void chebyshev_filter(int num_poles, int type, const std::string& filter_type, float r, float c, float ra, float rb);
 
 #endif
+
